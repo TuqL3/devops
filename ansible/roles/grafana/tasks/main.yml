@@ -1,0 +1,34 @@
+---
+- name: Tạo thư mục cho Grafana
+  file:
+    path: "/opt/grafana"
+    state: directory
+    mode: '0755'
+
+- name: Tạo thư mục provisioning
+  file:
+    path: "/opt/grafana/provisioning/datasources"
+    state: directory
+    mode: '0755'
+
+- name: Sao chép file cấu hình Grafana datasource
+  template:
+    src: "{{ playbook_dir }}/roles/grafana/templates/datasources.yml.j2"
+    dest: "/opt/grafana/provisioning/datasources/datasources.yml"
+    mode: '0644'
+
+- name: Chạy Grafana container
+  docker_container:
+    name: grafana
+    image: grafana/grafana
+    state: started
+    restart_policy: always
+    ports:
+      - "3000:3000"
+    env:
+      GF_SECURITY_ADMIN_USER: "{{ grafana_admin_user | default('admin') }}"
+      GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password | default('admin') }}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - /opt/grafana/provisioning:/etc/grafana/provisioning

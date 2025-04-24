@@ -1,0 +1,32 @@
+---
+- name: Thêm Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Thêm Docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Cài đặt Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+
+- name: Đảm bảo Docker service đang chạy
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Thêm user hiện tại vào nhóm docker
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes

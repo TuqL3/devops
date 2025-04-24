@@ -1,0 +1,34 @@
+---
+- name: Tạo thư mục cho ứng dụng
+  file:
+    path: "/opt/go-app"
+    state: directory
+    mode: '0755'
+
+- name: Sao chép files dự án
+  synchronize:
+    src: "{{ playbook_dir }}/../"
+    dest: "/opt/go-app"
+    delete: yes
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=.github"
+      - "--exclude=node_modules"
+
+- name: Tạo file .env
+  template:
+    src: "{{ playbook_dir }}/roles/app/templates/.env.j2"
+    dest: "/opt/go-app/.env"
+    mode: '0600'
+
+- name: Chạy ứng dụng với Docker Compose
+  docker_compose:
+    project_src: /opt/go-app
+    files:
+      - docker-compose.yml
+    state: present
+    pull: yes
+    recreate: always
+    services:
+      - app
+      - postgres
