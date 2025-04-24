@@ -29,7 +29,7 @@ go-crud-devops/
 
 ### Yêu cầu
 
-- Go 1.21+
+- Go 1.21 +
 - Docker và Docker Compose
 - PostgreSQL (hoặc sử dụng container)
 
